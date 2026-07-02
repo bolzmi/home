@@ -1,25 +1,49 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bolz TV Remote</title>
+  <title>HomeBase TV Remote</title>
+
   <style>
     body {
-      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #111;
       color: white;
       text-align: center;
-      padding: 20px;
     }
+
+    h1 {
+      margin-top: 10px;
+    }
+
+    #status {
+      color: #bbb;
+      min-height: 24px;
+    }
+
     button {
       font-size: 22px;
-      padding: 18px;
+      padding: 16px;
       margin: 6px;
-      border-radius: 14px;
       border: 0;
-      min-width: 80px;
+      border-radius: 14px;
+      min-width: 82px;
+      background: #333;
+      color: white;
     }
-    .wide { min-width: 180px; }
+
+    button:active {
+      background: #555;
+      transform: scale(0.97);
+    }
+
+    .wide {
+      min-width: 190px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: 90px 90px 90px;
@@ -27,65 +51,80 @@
       gap: 8px;
       margin: 20px 0;
     }
+
+    .spacer {
+      visibility: hidden;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #777;
+      margin-top: 30px;
+    }
   </style>
 </head>
-<body>
 
-  <h1>📺 TV Remote</h1>
+<body>
+  <h1>📺 HomeBase TV</h1>
   <p id="status">Ready</p>
 
-  <button class="wide" onclick="roku('Power')">Power</button>
+  <button class="wide" onclick="sendRokuCommand('Power')">Power</button>
 
   <div class="grid">
-    <div></div>
-    <button onclick="roku('Up')">▲</button>
-    <div></div>
+    <button class="spacer">.</button>
+    <button onclick="sendRokuCommand('Up')">▲</button>
+    <button class="spacer">.</button>
 
-    <button onclick="roku('Left')">◀</button>
-    <button onclick="roku('Select')">OK</button>
-    <button onclick="roku('Right')">▶</button>
+    <button onclick="sendRokuCommand('Left')">◀</button>
+    <button onclick="sendRokuCommand('Select')">OK</button>
+    <button onclick="sendRokuCommand('Right')">▶</button>
 
-    <div></div>
-    <button onclick="roku('Down')">▼</button>
-    <div></div>
+    <button class="spacer">.</button>
+    <button onclick="sendRokuCommand('Down')">▼</button>
+    <button class="spacer">.</button>
   </div>
 
-  <button onclick="roku('Back')">Back</button>
-  <button onclick="roku('Home')">Home</button>
+  <button onclick="sendRokuCommand('Back')">Back</button>
+  <button onclick="sendRokuCommand('Home')">Home</button>
+
   <br>
-  <button onclick="roku('Rev')">⏪</button>
-  <button onclick="roku('Play')">⏯</button>
-  <button onclick="roku('Fwd')">⏩</button>
+
+  <button onclick="sendRokuCommand('Rev')">⏪</button>
+  <button onclick="sendRokuCommand('Play')">⏯</button>
+  <button onclick="sendRokuCommand('Fwd')">⏩</button>
+
   <br>
-  <button onclick="roku('VolumeDown')">Vol -</button>
-  <button onclick="roku('VolumeMute')">Mute</button>
-  <button onclick="roku('VolumeUp')">Vol +</button>
+
+  <button onclick="sendRokuCommand('VolumeDown')">Vol -</button>
+  <button onclick="sendRokuCommand('VolumeMute')">Mute</button>
+  <button onclick="sendRokuCommand('VolumeUp')">Vol +</button>
+
+  <p class="small">Target: 192.168.1.3</p>
 
   <script>
-    const rokuIp = "192.168.1.3";
+    const rokuIpAddress = "192.168.1.3";
 
-    async function roku(command) {
+    async function sendRokuCommand(command) {
       const status = document.getElementById("status");
       status.textContent = "Sending " + command + "...";
 
       try {
-        await fetch(`http://${rokuIp}:8060/keypress/${command}`, {
+        await fetch("http://" + rokuIpAddress + ":8060/keypress/" + command, {
           method: "POST",
           mode: "no-cors"
         });
 
         status.textContent = "Sent: " + command;
-      } catch (err) {
-        status.textContent = "Could not reach Roku. Are you on home Wi-Fi?";
+      } catch (error) {
+        status.textContent = "Could not reach Roku. Check home Wi-Fi.";
       }
     }
 
-    // Optional: auto-toggle power when opened from NFC.
     const params = new URLSearchParams(window.location.search);
+
     if (params.get("power") === "toggle") {
-      roku("Power");
+      sendRokuCommand("Power");
     }
   </script>
-
 </body>
 </html>
