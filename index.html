@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bolz TV Remote</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    button {
+      font-size: 22px;
+      padding: 18px;
+      margin: 6px;
+      border-radius: 14px;
+      border: 0;
+      min-width: 80px;
+    }
+    .wide { min-width: 180px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 90px 90px 90px;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📺 TV Remote</h1>
+  <p id="status">Ready</p>
+
+  <button class="wide" onclick="roku('Power')">Power</button>
+
+  <div class="grid">
+    <div></div>
+    <button onclick="roku('Up')">▲</button>
+    <div></div>
+
+    <button onclick="roku('Left')">◀</button>
+    <button onclick="roku('Select')">OK</button>
+    <button onclick="roku('Right')">▶</button>
+
+    <div></div>
+    <button onclick="roku('Down')">▼</button>
+    <div></div>
+  </div>
+
+  <button onclick="roku('Back')">Back</button>
+  <button onclick="roku('Home')">Home</button>
+  <br>
+  <button onclick="roku('Rev')">⏪</button>
+  <button onclick="roku('Play')">⏯</button>
+  <button onclick="roku('Fwd')">⏩</button>
+  <br>
+  <button onclick="roku('VolumeDown')">Vol -</button>
+  <button onclick="roku('VolumeMute')">Mute</button>
+  <button onclick="roku('VolumeUp')">Vol +</button>
+
+  <script>
+    const rokuIp = "192.168.1.3";
+
+    async function roku(command) {
+      const status = document.getElementById("status");
+      status.textContent = "Sending " + command + "...";
+
+      try {
+        await fetch(`http://${rokuIp}:8060/keypress/${command}`, {
+          method: "POST",
+          mode: "no-cors"
+        });
+
+        status.textContent = "Sent: " + command;
+      } catch (err) {
+        status.textContent = "Could not reach Roku. Are you on home Wi-Fi?";
+      }
+    }
+
+    // Optional: auto-toggle power when opened from NFC.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("power") === "toggle") {
+      roku("Power");
+    }
+  </script>
+
+</body>
+</html>
